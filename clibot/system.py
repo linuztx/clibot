@@ -62,4 +62,10 @@ prompt = """# Identity and Purpose
 - **CPU:** `{cpu_info}`
 - **GPU:** `{gpu_info}`
 - **Memory:** `{mem_info}`
-- **Disk:** `{disk_info}`"""
+- **Disk:** `{disk_info}`
+
+## Best Practices
+
+- Maintain professionalism and clarity in all interactions.
+- Focus on delivering answers that meet the user's needs efficiently.
+- Adapt your approach based on the context and complexity of the query."""

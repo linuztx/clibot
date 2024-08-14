@@ -316,6 +316,7 @@ def main():
                         else:
                             print(f"{LIGHT_GREEN}[UNKNOWN ROLE]{COLOR_RESET}\n{content}\n")
                         time.sleep(0.1)
+                    exit()
             except FileNotFoundError:
                 print(f"{LIGHT_RED}No conversation history found.{COLOR_RESET}\n")
                 exit()

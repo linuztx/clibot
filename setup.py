@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="clibot",
-    version="0.1.1",
+    version="0.1.3",
     author="linuztx",
     author_email="linuztx@gmail.com",
     description = "An innovative command-line tool driven by powerful large language models, designed to accelerate task completion and maximize your productivity.",
