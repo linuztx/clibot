@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="clibot",
-    version="0.1.2",
+    version="0.1.3",
     author="linuztx",
     author_email="linuztx@gmail.com",
     description = "An innovative command-line tool driven by powerful large language models, designed to accelerate task completion and maximize your productivity.",
@@ -32,6 +32,7 @@ setup(
     install_requires=[
         "openai==1.34.0",
         "requests==2.32.3",
+        "colorama==0.4.6"
     ],
     entry_points={
         'console_scripts': [
