@@ -7,6 +7,7 @@ from clibot.streaming import streaming_response
 from clibot.config import *
 from clibot.colors import *
 from openai import AsyncOpenAI
+from functools import lru_cache
 
 
 package_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,6 +21,7 @@ help_msg = f"""Available Commands:
  /clear   Clear the conversation history"""
 
 
+@lru_cache(maxsize=1)
 def load_chat_history():
     if os.path.exists(history_file):
         try:
@@ -55,18 +57,17 @@ async def chatbot(messages, messages_history, client):
     
     try:
         loading.start()
-        response = await client.chat.completions.create(
+        stream = await client.chat.completions.create(
             model=AI_MODEL,
             messages=messages_history,
             temperature=TEMPERATURE,
             top_p=TOP_P,
             max_tokens=MAX_TOKENS,
             stream=True,
-            # stop=None
         )
         loading.stop()
         respond = ""
-        async for chunk in response:
+        async for chunk in stream:
             if chunk.choices[0].delta.content:
                 content = chunk.choices[0].delta.content
                 print(content, end="", flush=True)
@@ -77,10 +78,9 @@ async def chatbot(messages, messages_history, client):
         print()
 
     except KeyboardInterrupt:
-         loading.stop()
-         streaming_response(f"\n{LIGHT_RED}Exiting...{COLOR_RESET}")
-         exit()
-
+        loading.stop()
+        streaming_response(f"\n{LIGHT_RED}Exiting...{COLOR_RESET}")
+        exit()
     except Exception as e:
         loading.stop()
         streaming_response(f"{LIGHT_RED}Error: {str(e)}{COLOR_RESET}\n")
@@ -90,31 +90,32 @@ async def chatbot(messages, messages_history, client):
         pass
 
 
-def start_chat():
-        try:
-            query = input(">>> ").strip() or "/help"
-            if query == "/bye":
-                    exit()
-            elif query == "/help":
-                    print(help_msg + "\n")
-            elif query == "/clear":
-                    clear_chat_history()
-            else:
-                if AI_PROVIDER == "groq":
-                        client = AsyncOpenAI(api_key=API_KEY, base_url=GROQ_AI_ENDPOINT)
-                elif AI_PROVIDER == "openai":
-                        client = AsyncOpenAI(api_key=API_KEY)
-                elif AI_PROVIDER == "mistral":
-                        client = AsyncOpenAI(api_key=API_KEY, base_url=MISTRAL_AI_ENDPOINT)
-                elif AI_PROVIDER == "ollama":
-                        client = AsyncOpenAI(api_key=API_KEY, base_url=OLLAMA_AI_ENDPOINT)
-                asyncio.run(chatbot({"role": "user", "content": query}, load_chat_history(), client))
-        except KeyboardInterrupt:
-                print("\nExiting...")
-                exit()
-        except Exception as e:
-                print(f"\n{LIGHT_RED}Error: {str(e)}{COLOR_RESET}")
-                exit()
-        except RuntimeError:
-                pass
+async def start_chat():
+    try:
+        query = input(">>> ").strip() or "/help"
+        if query == "/bye":
+            exit()
+        elif query == "/help":
+            print(help_msg + "\n")
+        elif query == "/clear":
+            clear_chat_history()
+        else:
+            client = AsyncOpenAI(
+                api_key=API_KEY,
+                base_url={
+                    "groq": GROQ_AI_ENDPOINT,
+                    "openai": None,
+                    "mistral": MISTRAL_AI_ENDPOINT,
+                    "ollama": OLLAMA_AI_ENDPOINT
+                }.get(AI_PROVIDER)
+            )
+            await chatbot({"role": "user", "content": query}, load_chat_history(), client)
+    except KeyboardInterrupt:
+        print("\nExiting...")
+        exit()
+    except Exception as e:
+        print(f"\n{LIGHT_RED}Error: {str(e)}{COLOR_RESET}")
+        exit()
+    except RuntimeError:
+        pass
 
