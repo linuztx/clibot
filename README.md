@@ -2,7 +2,16 @@
 
 Clibot is an innovative command-line productivity tool powered by advanced language models. It helps you accomplish tasks faster and more efficiently by interacting with AI models directly from the command line. Clibot supports various command line interfaces including CMD, PowerShell, Zsh, and more.
 
-![clibot](https://github.com/user-attachments/assets/d41481a5-1aff-47b8-b68c-e7548f59a6aa)
+https://github.com/user-attachments/assets/320cd140-4949-46e5-88ba-ba4f9e2e0f96
+
+## Features
+
+- **Multi-Provider Support**: Compatible with multiple AI providers including Groq, OpenAI, Mistral, and Ollama.
+- **Conversation History**: Keeps track of your conversations for easy review.
+- **Setup and Configuration**: Streamlined setup process to configure your AI providers.
+- **Asynchronous Processing**: Utilizes asynchronous operations for improved performance.
+- **Error Handling**: Robust error handling and retry mechanisms for a smooth user experience.
+- **Customizable Settings**: Adjust AI model parameters like temperature and max tokens.
 
 ## Installation
 
@@ -16,12 +25,6 @@ pip install clibot
 > You can use locally hosted open source models which are available for free. To use local models, you will need to run your own LLM backend server such as [Ollama](https://github.com/ollama/ollama).
 >
 > **❗️Note: Localhosted models require high-end hardware for optimal performance and may not work as expected on lower-end systems.**
-
-### Features
-
-- **Multi-Provider Support**: Compatible with multiple AI providers including Groq, OpenAI, Mistral, and Ollama.
-- **Conversation History**: Keeps track of your conversations for easy review.
-- **Setup and Configuration**: Streamlined setup process to configure your AI providers.
 
 ### Setup
 
