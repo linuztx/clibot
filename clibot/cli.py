@@ -1,12 +1,14 @@
 from clibot.streaming import *
 from clibot.system import *
 from clibot.colors import *
-
+from clibot.chat import chatbot, load_chat_history, start_chat
+import asyncio  # Add this import
 import requests
 import time
 import json
 import sys
 import os
+import argparse
 
 
 # Help arguments
@@ -91,149 +93,20 @@ def save_credentials(provider, api_key, ai_model, temperature, top_p, max_tokens
 def setup():
     """
     Setup clibot by selecting an AI provider and configuring the AI model.
-
-    This function prompts the user to choose an AI provider and configure the AI model.
-    It supports multiple AI providers such as Groq, OpenAI, Mistral, Ollama, and OpenRouter.
-    The user is asked to enter the necessary API keys, AI model, and configuration settings.
-    The chosen settings are then saved and a setup completion message is displayed.
     """
     print(providers)
     try:
-        # Get the chosen AI provider
         provider = input(f"Enter the number of your chosen AI provider:{COLOR_RESET} ")
-
-        # Handle different AI providers
-        if provider == '1':
-            # Groq provider
-            api_key = input(f"Enter your Groq API key (https://console.groq.com/keys):{COLOR_RESET} ").strip()
-            print()
-
-            # Get available models from Groq
-            models = get_models("https://api.groq.com/openai/v1/models", api_key)
-
-            # Display available models
-            for detail in models:
-                print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET}  {LIGHT_YELLOW}Context Window:{COLOR_RESET} {detail['context_window']}")
-                time.sleep(0.1)
-
-            # Display model documentation
-            print()
-            print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://console.groq.com/docs/models{COLOR_RESET}")
-            print(f"Reference Documentation:{COLOR_RESET} {LIGHT_CYAN}https://console.groq.com/docs/api-reference{COLOR_RESET}\n")
-
-            # Get the chosen AI model
-            ai_model = input(f"Enter the AI model you want to use (recommended: llama-3.1-70b-versatile):{COLOR_RESET} ").strip() or "llama-3.1-70b-versatile"
-
-            # Get configuration settings
-            max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
-            temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
-            top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
-
-            # Save configuration settings
-            save_credentials("groq", api_key, ai_model, temperature, top_p, max_tokens)
-
-            # Display setup completion message
-            print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
-            exit()
-
-        elif provider == '2':
-            # OpenAI provider
-            api_key = input(f"Enter your OpenAI API key (https://platform.openai.com/settings/profile/api-keys):{COLOR_RESET} ").strip()
-            print()
-
-            # Get available models from OpenAI
-            models = get_models("https://api.openai.com/v1/models", api_key)
-
-            # Display available models
-            for detail in models:
-                print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET}")
-                time.sleep(0.1)
-
-            # Display model documentation
-            print()
-            print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://platform.openai.com/docs/models/overview{COLOR_RESET}")
-            print(f"Reference Documentation:{COLOR_RESET} {LIGHT_CYAN}https://platform.openai.com/docs/api-reference/introduction{COLOR_RESET}\n")
-
-            # Get the chosen AI model
-            ai_model = input(f"Enter the AI model you want to use (recommended: gpt-4o-mini):{COLOR_RESET} ").strip() or "gpt-4o-mini"
-
-            # Get configuration settings
-            max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
-            temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
-            top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
-
-            # Save configuration settings
-            save_credentials("openai", api_key, ai_model, temperature, top_p, max_tokens)
-
-            # Display setup completion message
-            print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
-            exit()
-
-        elif provider == '3':
-            # Mistral provider
-            api_key = input(f"Enter your Mistral API key (https://console.mistral.ai/api-keys/):{COLOR_RESET} ").strip()
-            print()
-
-            # Get available models from Mistral
-            models = get_models("https://api.mistral.ai/v1/models", api_key)
-
-            # Display available models
-            for detail in models:
-                print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET} {LIGHT_YELLOW}Context Window:{COLOR_RESET} {detail['max_context_length']}")
-                time.sleep(0.1)
-
-            # Display model documentation
-            print()
-            print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://docs.mistral.ai/getting-started/models/{COLOR_RESET}")
-            print(f"Reference Documentation:{COLOR_RESET} {LIGHT_CYAN}https://docs.mistral.ai/api/{COLOR_RESET}\n")
-
-            # Get the chosen AI model
-            ai_model = input(f"Enter the AI model you want to use (recommended: open-mistral-nemo-2407):{COLOR_RESET} ").strip() or "open-mistral-nemo-2407"
-
-            # Get configuration settings
-            max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
-            temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
-            top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
-
-            # Save configuration settings
-            save_credentials("mistral", api_key, ai_model, temperature, top_p, max_tokens)
-
-            # Display setup completion message
-            print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
-            exit()
-
-        elif provider == "4":
-            # Ollama provider
-            api_key = "None"
-            print()
-
-            # Get available models from Ollama
-            models = get_models("http://localhost:11434/v1/models", api_key)
-
-            # Display available models
-            for detail in models:
-                print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET}")
-                time.sleep(0.1)
-
-            # Display model documentation
-            print()
-            print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://ollama.com/library{COLOR_RESET}")
-
-            # Get the chosen AI model
-            ai_model = input(f"Enter the AI model you want to use (recommended: gemma2:2b):{COLOR_RESET} ").strip() or "gemma2:2b"
-
-            # Get configuration settings
-            max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
-            temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
-            top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
-
-            # Save configuration settings
-            save_credentials("ollama", api_key, ai_model, temperature, top_p, max_tokens)
-
-            # Display setup completion message
-            print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
-            exit()
-
+        
+        provider_handlers = {
+            '1': setup_groq,
+            '2': setup_openai,
+            '3': setup_mistral,
+            '4': setup_ollama
+        }
+        
+        if provider in provider_handlers:
+            provider_handlers[provider]()
         else:
             print(f"{LIGHT_RED}Invalid choice. Please select a valid option.{COLOR_RESET}")
             exit()
@@ -241,10 +114,140 @@ def setup():
     except Exception as e:
         print(f"{LIGHT_RED}An error occurred: {e}{COLOR_RESET}")
         exit()
-
     except KeyboardInterrupt:
         print(f"\n{LIGHT_RED}Setup cancelled.{COLOR_RESET}")
         exit()
+
+def setup_groq():
+    # Groq provider
+    api_key = input(f"Enter your Groq API key (https://console.groq.com/keys):{COLOR_RESET} ").strip()
+    print()
+
+    # Get available models from Groq
+    models = get_models("https://api.groq.com/openai/v1/models", api_key)
+
+    # Display available models
+    for detail in models:
+        print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET}  {LIGHT_YELLOW}Context Window:{COLOR_RESET} {detail['context_window']}")
+        time.sleep(0.1)
+
+    # Display model documentation
+    print()
+    print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://console.groq.com/docs/models{COLOR_RESET}")
+    print(f"Reference Documentation:{COLOR_RESET} {LIGHT_CYAN}https://console.groq.com/docs/api-reference{COLOR_RESET}\n")
+
+    # Get the chosen AI model
+    ai_model = input(f"Enter the AI model you want to use (recommended: llama-3.1-70b-versatile):{COLOR_RESET} ").strip() or "llama-3.1-70b-versatile"
+
+    # Get configuration settings
+    max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
+    temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
+    top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
+
+    # Save configuration settings
+    save_credentials("groq", api_key, ai_model, temperature, top_p, max_tokens)
+
+    # Display setup completion message
+    print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
+    exit()
+
+def setup_openai():
+    # OpenAI provider
+    api_key = input(f"Enter your OpenAI API key (https://platform.openai.com/settings/profile/api-keys):{COLOR_RESET} ").strip()
+    print()
+
+    # Get available models from OpenAI
+    models = get_models("https://api.openai.com/v1/models", api_key)
+
+    # Display available models
+    for detail in models:
+        print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET}")
+        time.sleep(0.1)
+
+    # Display model documentation
+    print()
+    print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://platform.openai.com/docs/models/overview{COLOR_RESET}")
+    print(f"Reference Documentation:{COLOR_RESET} {LIGHT_CYAN}https://platform.openai.com/docs/api-reference/introduction{COLOR_RESET}\n")
+
+    # Get the chosen AI model
+    ai_model = input(f"Enter the AI model you want to use (recommended: gpt-4o-mini):{COLOR_RESET} ").strip() or "gpt-4o-mini"
+
+    # Get configuration settings
+    max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
+    temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
+    top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
+
+    # Save configuration settings
+    save_credentials("openai", api_key, ai_model, temperature, top_p, max_tokens)
+
+    # Display setup completion message
+    print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
+    exit()
+
+def setup_mistral():
+    # Mistral provider
+    api_key = input(f"Enter your Mistral API key (https://console.mistral.ai/api-keys/):{COLOR_RESET} ").strip()
+    print()
+
+    # Get available models from Mistral
+    models = get_models("https://api.mistral.ai/v1/models", api_key)
+
+    # Display available models
+    for detail in models:
+        print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET} {LIGHT_YELLOW}Context Window:{COLOR_RESET} {detail['max_context_length']}")
+        time.sleep(0.1)
+
+    # Display model documentation
+    print()
+    print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://docs.mistral.ai/getting-started/models/{COLOR_RESET}")
+    print(f"Reference Documentation:{COLOR_RESET} {LIGHT_CYAN}https://docs.mistral.ai/api/{COLOR_RESET}\n")
+
+    # Get the chosen AI model
+    ai_model = input(f"Enter the AI model you want to use (recommended: open-mistral-nemo-2407):{COLOR_RESET} ").strip() or "open-mistral-nemo-2407"
+
+    # Get configuration settings
+    max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
+    temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
+    top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
+
+    # Save configuration settings
+    save_credentials("mistral", api_key, ai_model, temperature, top_p, max_tokens)
+
+    # Display setup completion message
+    print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
+    exit()
+
+def setup_ollama():
+    # Ollama provider
+    api_key = "None"
+    print()
+
+    # Get available models from Ollama
+    models = get_models("http://localhost:11434/v1/models", api_key)
+
+    # Display available models
+    for detail in models:
+        print(f"{LIGHT_BLUE}Model:{COLOR_RESET} {detail['id']}{COLOR_RESET}")
+        time.sleep(0.1)
+
+    # Display model documentation
+    print()
+    print(f"Models Documentation:{COLOR_RESET} {LIGHT_CYAN}https://ollama.com/library{COLOR_RESET}")
+
+    # Get the chosen AI model
+    ai_model = input(f"Enter the AI model you want to use (recommended: gemma2:2b):{COLOR_RESET} ").strip() or "gemma2:2b"
+
+    # Get configuration settings
+    max_tokens = input(f"Enter your desired maximum output tokens for the AI model (default: 4096):{COLOR_RESET} ").strip() or 4096
+    temperature = input(f"Enter your desired temperature (default: 0.5):{COLOR_RESET} ").strip() or 0.5
+    top_p = input(f"Enter your desired top_p (default: 0.9):{COLOR_RESET} ").strip() or 0.9
+
+    # Save configuration settings
+    save_credentials("ollama", api_key, ai_model, temperature, top_p, max_tokens)
+
+    # Display setup completion message
+    print(f"\n{LIGHT_GREEN}Setup complete!{COLOR_RESET}🎉\n")
+    exit()
 
 
 def load_clibot_history():
@@ -276,90 +279,110 @@ def clear_chat_history():
 
 
 # Parse command line arguments
+async def async_main():
+    parser = argparse.ArgumentParser(description="Interact with Clibot via command line.", add_help=False)
+    parser.add_argument('--setup', action='store_true', help='Setup configuration file')
+    parser.add_argument('--clear', action='store_true', help='Clear conversation history')
+    parser.add_argument('--config', action='store_true', help='Show configuration settings')
+    parser.add_argument('--history', action='store_true', help='Show conversation history')
+    parser.add_argument('--chat', action='store_true', help='Interact in chat mode')
+    parser.add_argument('--help', action='store_true', help='Show this help message and exit')
+    parser.add_argument('query', nargs='*', help='Query for Clibot')
+
+    args = parser.parse_args()
+
+    if args.help:
+        print(help_arguments)
+    elif args.clear:
+        clear_chat_history()
+    elif args.setup:
+        setup()
+    elif args.config:
+        show_config()
+    elif args.chat:
+        while True:
+            await start_chat()
+    elif args.history:
+        show_history()
+    elif args.query or not sys.stdin.isatty():
+        await process_query(args)
+    else:
+        print(help_arguments)
+
 def main():
-    # Default values
-    query = ""
+    asyncio.run(async_main())
 
-    # Process command line arguments
-    args = sys.argv[1:]
-    if len(args) > 0:
-        if args[0] == '--help':
-            print(help_arguments)
-            exit()
-        elif args[0] == '--clear':
-            clear_chat_history()
-            exit()
-        elif args[0] == '--setup':
-            setup()
-        elif args[0] == '--config':
-            with open(f"{credentials_path}/{credentials_name}", 'r') as f:
-                credentials = json.load(f)
-                print(f"{LIGHT_GREEN}{json.dumps(credentials, indent=4)}{COLOR_RESET}\n")
-            exit()
-        elif args[0] == '--chat':
-            from clibot.chat import start_chat
-            while True:
-               start_chat()
-        elif args[0] == '--history':
-            try:
-                with open(clibot_history_file, 'r') as f:
-                    conversation = json.load(f)
-                    for entry in conversation:
-                        role = entry.get('role', 'unknown')
-                        content = entry.get('content', '')
-                        if role == 'system':
-                            print(f"{LIGHT_GREEN}[SYSTEM]{COLOR_RESET}\n{content}\n")
-                        elif role == 'user':
-                            print(f"{LIGHT_GREEN}[USER]{COLOR_RESET}\n{content}\n")
-                        elif role == 'assistant':
-                            print(f"{LIGHT_GREEN}[CLIBOT]{COLOR_RESET}\n{content}\n")
-                        else:
-                            print(f"{LIGHT_GREEN}[UNKNOWN ROLE]{COLOR_RESET}\n{content}\n")
-                        time.sleep(0.1)
-                    exit()
-            except FileNotFoundError:
-                print(f"{LIGHT_RED}No conversation history found.{COLOR_RESET}\n")
-                exit()
-        elif args[0].startswith('-'):
-            print(f'Error: Unknown option "{args[0]}" for "clibot".')
-            exit()
-        else:
-            query = ' '.join(args)
+def show_config():
+    with open(f"{credentials_path}/{credentials_name}", 'r') as f:
+        credentials = json.load(f)
+        print(f"{LIGHT_GREEN}{json.dumps(credentials, indent=4)}{COLOR_RESET}\n")
 
+def show_history():
+    try:
+        with open(clibot_history_file, 'r') as f:
+            conversation = json.load(f)
+            for entry in conversation:
+                role = entry.get('role', 'unknown')
+                content = entry.get('content', '')
+                role_color = {
+                    'system': LIGHT_GREEN,
+                    'user': LIGHT_CYAN,
+                    'assistant': LIGHT_YELLOW
+                }.get(role, LIGHT_WHITE)
+                print(f"{role_color}[{role.upper()}]{COLOR_RESET}\n{content}\n")
+                time.sleep(0.1)
+    except FileNotFoundError:
+        print(f"{LIGHT_RED}No conversation history found.{COLOR_RESET}\n")
+
+async def process_query_async(query, messages_clibot_history, client):
+    max_retries = 3
+    for attempt in range(max_retries):
+        try:
+            arguments = [{"role": "user", "content": query.strip()}]
+            await chatbot(arguments[0], messages_clibot_history, client)
+            break  # If successful, break out of the retry loop
+        except Exception as e:
+            if attempt < max_retries - 1:  # If not the last attempt
+                print(f"\n{LIGHT_YELLOW}Warning: Error occurred. Retrying... (Attempt {attempt + 1}/{max_retries}){COLOR_RESET}")
+                await asyncio.sleep(1)  # Wait a bit before retrying
+            else:
+                print(f"\n{LIGHT_RED}Error: Failed to process query after {max_retries} attempts. Details: {str(e)}{COLOR_RESET}")
+                raise  # Re-raise the last exception if all retries failed
+
+async def process_query(args):
+    query = ' '.join(args.query)
     if not sys.stdin.isatty():
-        try:
-            stdin_input = sys.stdin.read().strip()
-            if stdin_input:
-                if query:
-                    query = f"#User Prompt: {query}\n\n{stdin_input}".strip()
-                else:
-                    query = stdin_input
-        except EOFError:
-            pass  # Handle EOFError gracefully
-    
+        stdin_input = sys.stdin.read().strip()
+        if stdin_input:
+            query = f"#User Prompt: {query}\n\n{stdin_input}" if query else stdin_input
+
     if query:
-        from clibot.config import API_KEY, AI_PROVIDER, GROQ_AI_ENDPOINT, MISTRAL_AI_ENDPOINT, OLLAMA_AI_ENDPOINT
+        from clibot.config import API_KEY, AI_PROVIDER, AI_ENDPOINTS
         from openai import AsyncOpenAI
-        from clibot.chat import chatbot
-        import asyncio
-        messages_clibot_history = load_clibot_history()
-        arguments = [{"role": "user", "content": query.strip()}]
+
+        messages_clibot_history = load_chat_history()
         try:
-            if AI_PROVIDER == "groq":
-                    client = AsyncOpenAI(api_key=API_KEY, base_url=GROQ_AI_ENDPOINT)
-                    asyncio.run(chatbot(arguments[0], messages_clibot_history, client))
-            elif AI_PROVIDER == "openai":
-                    client = AsyncOpenAI(api_key=API_KEY)
-                    asyncio.run(chatbot(arguments[0], messages_clibot_history, client))
-            elif AI_PROVIDER == "mistral":
-                    client = AsyncOpenAI(api_key=API_KEY, base_url=MISTRAL_AI_ENDPOINT)
-                    asyncio.run(chatbot(arguments[0], messages_clibot_history, client))
-            elif AI_PROVIDER == "ollama":
-                    client = AsyncOpenAI(api_key=API_KEY, base_url=OLLAMA_AI_ENDPOINT)
-                    asyncio.run(chatbot(arguments[0], messages_clibot_history, client))
+            client = AsyncOpenAI(
+                api_key=API_KEY,
+                base_url=AI_ENDPOINTS.get(AI_PROVIDER)
+            )
+            await process_query_async(query, messages_clibot_history, client)
         except KeyboardInterrupt:
             streaming_response("\nExiting...")
             exit()
-    else:
-        print(help_arguments)
-        exit()
+        except RuntimeError as e:
+            if "Event loop is closed" in str(e):
+                print(f"\n{LIGHT_RED}Error: The event loop was closed unexpectedly. Restarting the query...{COLOR_RESET}")
+                # Attempt to recreate the event loop and run the query again
+                asyncio.set_event_loop(asyncio.new_event_loop())
+                try:
+                    await process_query_async(query, messages_clibot_history, client)
+                except Exception as inner_e:
+                    print(f"\n{LIGHT_RED}Error: Unable to process the query. Please try again. Details: {str(inner_e)}{COLOR_RESET}")
+            else:
+                print(f"\n{LIGHT_RED}Error: An unexpected runtime error occurred. Details: {str(e)}{COLOR_RESET}")
+        except Exception as e:
+            print(f"\n{LIGHT_RED}Error: An unexpected error occurred. Details: {str(e)}{COLOR_RESET}")
+
+if __name__ == "__main__":
+    main()
