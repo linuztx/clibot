@@ -266,11 +266,6 @@ def save_clibot_history(message_history):
         json.dump(message_history, f, indent=4)
 
 
-# Check if credentials file exists
-if not os.path.exists(f"{credentials_path}/{credentials_name}"):
-    setup()
-
-
 # Clear chat history
 def clear_chat_history():
     with open(clibot_history_file, 'w') as f:
@@ -291,12 +286,12 @@ async def async_main():
 
     args = parser.parse_args()
 
-    if args.help:
+    if args.setup or not os.path.exists(f"{credentials_path}/{credentials_name}"):
+        setup()
+    elif args.help:
         print(help_arguments)
     elif args.clear:
         clear_chat_history()
-    elif args.setup:
-        setup()
     elif args.config:
         show_config()
     elif args.chat:
@@ -305,6 +300,10 @@ async def async_main():
     elif args.history:
         show_history()
     elif args.query or not sys.stdin.isatty():
+        from clibot.config import AI_PROVIDER, API_KEY
+        if not AI_PROVIDER or not API_KEY:
+            print(f"{LIGHT_RED}Error: Clibot is not configured properly. Please run 'clibot --setup' to configure your settings.{COLOR_RESET}")
+            return
         await process_query(args)
     else:
         print(help_arguments)
