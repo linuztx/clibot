@@ -16,9 +16,6 @@ https://github.com/user-attachments/assets/6cb76ad5-3a8d-4bd9-9068-6ec4f99793d0
 - ⚡ **Asynchronous Processing**: Utilizes asynchronous operations for improved performance.
 - 🛡️ **Error Handling**: Robust error handling and retry mechanisms for a smooth user experience.
 - ⚙️ **Customizable Settings**: Adjust AI model parameters like temperature and max tokens.
-- 💾 **File Saving**: Save files directly from Clibot responses.
-- 🖥️ **Terminal Command Execution**: Execute terminal commands through Clibot.
-- 🐍 **Python Code Execution**: Run Python code snippets within Clibot.
 
 ## Installation
 
