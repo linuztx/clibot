@@ -73,23 +73,17 @@ clibot 'Write a simple README file' > README.md
 lscpu | clibot 'Review my CPU'
 ```
 
-### Saving Files from Clibot Responses
+## Upcoming Features: Agentic Capabilities
 
-```bash
-clibot "Create a simple Python script that prints 'Hello, World!' and save it as hello.py"
-```
+I'm excited to announce that in upcoming updates, Clibot will be enhanced with agentic capabilities, taking its functionality to the next level:
 
-### Executing Terminal Commands
+- 🤖 **Autonomous Task Execution**: Clibot will be able to break down complex tasks into smaller steps and execute them autonomously.
+- 🔄 **Adaptive Decision Making**: The AI will make decisions based on the current context and previous interactions, adapting its approach as needed.
+- 🔍 **Proactive Information Gathering**: Clibot will actively seek out additional information when necessary to complete tasks more effectively.
+- 🎯 **Goal-Oriented Behavior**: Users will be able to set high-level goals, and Clibot will work towards achieving them independently.
+- 🧠 **Enhanced Problem Solving**: The AI will utilize its expanded capabilities to tackle more complex problems and provide more comprehensive solutions.
 
-```bash
-clibot "Show me the contents of the current directory"
-```
-
-### Running Python Code
-
-```bash
-clibot "Calculate the factorial of 5 using Python"
-```
+These agentic features will make Clibot an even more powerful assistant, capable of handling a wider range of tasks with increased autonomy and intelligence. Stay tuned for updates!
 
 ## Support
 
