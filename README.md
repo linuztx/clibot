@@ -6,7 +6,7 @@
 
 Clibot is an innovative command-line productivity tool powered by advanced language models. It helps you accomplish tasks faster and more efficiently by interacting with AI models directly from the command line. Clibot supports various command line interfaces including CMD, PowerShell, Zsh, and more.
 
-![Clibot Demo](https://github.com/user-attachments/assets/6cb76ad5-3a8d-4bd9-9068-6ec4f99793d0)
+https://github.com/user-attachments/assets/6cb76ad5-3a8d-4bd9-9068-6ec4f99793d0
 
 ## Features
 
